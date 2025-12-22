@@ -16,25 +16,24 @@ export async function sendOtp(formData) {
     }
 
     try {
-        await dbConnect();
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
 
-        // 1. Generate Random 6-digit OTP
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const response = await fetch(`${API_BASE}/auth/send-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: mobile })
+        });
 
-        // 2. Store in DB (upsert/replace old one)
-        await Otp.deleteMany({ phone: mobile });
-        await Otp.create({ phone: mobile, otp: otpCode });
+        const data = await response.json();
 
-        // 3. Send OTP (Simulated via Console)
-        console.log(`\n================================`);
-        console.log(`[AUTH] Sending OTP to ${mobile}`);
-        console.log(`[AUTH] CODE: ${otpCode}`);
-        console.log(`================================\n`);
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to send OTP');
+        }
 
-        return { success: true, message: 'OTP sent successfully' };
+        return { success: true, message: data.message };
     } catch (error) {
-        console.error("Send OTP Error:", error);
-        return { error: `Failed to send OTP: ${error.message}` };
+        console.error("Send OTP Action Error:", error);
+        return { error: error.message };
     }
 }
 
@@ -49,15 +48,21 @@ export async function verifyOtp(prevState, formData) {
     try {
         await dbConnect();
 
-        // 1. Verify OTP against Database
-        const otpRecord = await Otp.findOne({ phone: mobile, otp });
+        // 1. Verify OTP via Backend API
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+        const verifyResponse = await fetch(`${API_BASE}/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: mobile, otp })
+        });
 
-        if (!otpRecord) {
-            return { error: 'Invalid or Expired OTP' };
+        const verifyData = await verifyResponse.json();
+
+        if (!verifyResponse.ok) {
+            return { error: verifyData.message || 'Invalid OTP' };
         }
 
-        // 2. Clear OTP after usage
-        await Otp.deleteMany({ phone: mobile });
+        // OTP Verified Successfully. Now handle User Login/Signup locally (as this is the Auth Server Action)
 
         // 3. Check if user exists or Create New
         let user = await User.findOne({ phone: mobile });
