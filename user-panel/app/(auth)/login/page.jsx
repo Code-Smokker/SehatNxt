@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Splash from "@/components/shared/Splash";
-import { sendOtp, verifyOtp } from "@/actions/auth";
+import { verifyOtp } from "@/actions/auth";
 
 export default function LoginPage() {
     const [showSplash, setShowSplash] = useState(true);
@@ -23,13 +23,26 @@ export default function LoginPage() {
         if (mobile.length !== 10) return setError("Enter valid mobile number");
 
         setLoading(true);
-        const fd = new FormData();
-        fd.append("mobile", mobile);
 
-        const res = await sendOtp(fd);
-        setLoading(false);
+        try {
+            const res = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: mobile }),
+            });
 
-        res.success ? setStep(2) : setError(res.error);
+            const data = await res.json();
+            setLoading(false);
+
+            if (res.ok && data.success) {
+                setStep(2);
+            } else {
+                setError(data.message || "Failed to send OTP");
+            }
+        } catch (err) {
+            setLoading(false);
+            setError("Something went wrong. Please try again.");
+        }
     };
 
     const handleVerifyOtp = async (e) => {

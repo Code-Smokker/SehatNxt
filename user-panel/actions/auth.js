@@ -48,19 +48,15 @@ export async function verifyOtp(prevState, formData) {
     try {
         await dbConnect();
 
-        // 1. Verify OTP via Backend API
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
-        const verifyResponse = await fetch(`${API_BASE}/auth/verify-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: mobile, otp })
-        });
+        // 1. Verify OTP against Database (Direct Access)
+        const otpRecord = await Otp.findOne({ phone: mobile, otp });
 
-        const verifyData = await verifyResponse.json();
-
-        if (!verifyResponse.ok) {
-            return { error: verifyData.message || 'Invalid OTP' };
+        if (!otpRecord) {
+            return { error: 'Invalid or Expired OTP' };
         }
+
+        // 2. Clear OTP after usage
+        await Otp.deleteMany({ phone: mobile });
 
         // OTP Verified Successfully. Now handle User Login/Signup locally (as this is the Auth Server Action)
 
