@@ -9,6 +9,7 @@ const protect = async (req, res, next) => {
         try {
             token = req.headers.authorization.split(' ')[1];
             // console.log("Middleware received token:", token.substring(0, 10) + "..."); 
+            console.log("Backend Verifying using Secret:", process.env.JWT_SECRET ? process.env.JWT_SECRET.substring(0, 5) + "..." : "MISSING");
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             console.log("Token Decoded ID:", decoded.id);
 

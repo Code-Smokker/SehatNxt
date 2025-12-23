@@ -20,7 +20,8 @@ export const metadata = {
         images: ["/og-image.png"],
         type: "website"
     },
-    robots: "index, follow"
+    robots: "index, follow",
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
 };
 
 import { LocationProvider } from '@/context/LocationContext';
@@ -28,17 +29,21 @@ import GoogleMapsLoader from '@/components/shared/GoogleMapsLoader';
 
 import BackgroundEffects from '@/components/shared/BackgroundEffects';
 
+import GoogleWrapper from '@/components/auth/GoogleWrapper';
+
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body className={inter.className}>
                 <BackgroundEffects />
                 <GoogleMapsLoader />
-                <LocationProvider>
-                    <main className="relative z-10 min-h-screen">
-                        {children}
-                    </main>
-                </LocationProvider>
+                <GoogleWrapper>
+                    <LocationProvider>
+                        <main className="relative z-10 min-h-screen">
+                            {children}
+                        </main>
+                    </LocationProvider>
+                </GoogleWrapper>
             </body>
         </html>
     );

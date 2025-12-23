@@ -7,15 +7,22 @@ import Sidebar from "./Sidebar";
 import LocationModal from "../location/LocationModal";
 import GlobalSearch from "./GlobalSearch";
 import { useLocation } from "../../context/LocationContext";
-import axios from 'axios';
+import { getMyPrescriptions } from '@/actions/prescription';
+
+// ... other imports
 
 const Navbar = ({ tokenData }) => {
-    const router = useRouter();
     const pathname = usePathname();
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { selectedLocation, isLocationModalOpen, openLocationModal, closeLocationModal } = useLocation();
 
-    // Auto-Navigation and Reminder Polling
+    // Use Global Location Context
+    const {
+        selectedLocation,
+        isLocationModalOpen,
+        openLocationModal,
+        closeLocationModal
+    } = useLocation();
     React.useEffect(() => {
         let lastCount = localStorage.getItem('rx_count');
 
@@ -23,9 +30,8 @@ const Navbar = ({ tokenData }) => {
             // 1. Check Prescriptions
             if (pathname !== '/medical-records') {
                 try {
-                    const { getMyPrescriptions } = await import('@/actions/prescription');
                     const rxs = await getMyPrescriptions();
-                    const currentCount = rxs.length;
+                    const currentCount = rxs ? rxs.length : 0;
                     if (lastCount !== null && currentCount > parseInt(lastCount)) {
                         router.push('/medical-records');
                     }

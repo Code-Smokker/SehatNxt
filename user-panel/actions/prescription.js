@@ -12,7 +12,7 @@ export async function getMyPrescriptions() {
     try {
         // Fetch from backend using patient ID from session
         const res = await axios.get(`${API_BASE_URL}/prescriptions/patient/${session.id}`);
-        return res.data;
+        return JSON.parse(JSON.stringify(res.data));
     } catch (error) {
         console.error("Error fetching prescriptions:", error.message);
         return [];

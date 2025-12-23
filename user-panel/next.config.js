@@ -9,6 +9,23 @@ const nextConfig = {
             { protocol: 'https', hostname: 'img.freepik.com' },
         ],
     },
+    async headers() {
+        return [
+            {
+                source: '/(.*)',
+                headers: [
+                    {
+                        key: 'Cross-Origin-Opener-Policy',
+                        value: 'unsafe-none',
+                    },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'no-referrer-when-downgrade',
+                    },
+                ],
+            },
+        ];
+    },
 };
 
 module.exports = nextConfig;

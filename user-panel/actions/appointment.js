@@ -12,6 +12,9 @@ export async function bookAppointment(appointmentData) {
     }
 
     try {
+        console.log(`[BookAppointment] URL: ${API_Base}/appointments/create`);
+        console.log(`[BookAppointment] Token: ${session.token ? session.token.substring(0, 10) + '...' : 'MISSING'}`);
+
         const response = await fetch(`${API_Base}/appointments/create`, {
             method: 'POST',
             headers: {
@@ -40,7 +43,7 @@ export async function bookAppointment(appointmentData) {
         }
 
         revalidatePath('/appointments');
-        return { success: true, appointment: data };
+        return JSON.parse(JSON.stringify({ success: true, appointment: data }));
     } catch (error) {
         console.error("Booking Error:", error);
         return { error: error.message || 'Failed to book appointment' };
@@ -67,7 +70,7 @@ export async function getMyAppointments() {
         }
 
         const appointments = await response.json();
-        return appointments;
+        return JSON.parse(JSON.stringify(appointments));
     } catch (error) {
         console.error("Fetch Error:", error);
         return [];

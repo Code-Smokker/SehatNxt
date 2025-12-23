@@ -68,3 +68,40 @@ body {
 .animate-slideInRight {
   animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@keyframes logoEnter {
+  0% {
+    transform: scale(0.92) translateY(10px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-logoEnter {
+  animation: logoEnter 0.9s ease-out forwards;
+}
+
+/* floatSlow already exists below, using existing */
+.animate-floatSlow {
+  animation: floatSlow 28s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(30px, -30px);
+  }
+}
+
+.animate-floatSlow {
+  animation: floatSlow 28s ease-in-out infinite;
+}

@@ -3,7 +3,9 @@
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 
-const secretKey = "sehatsupersecretkey123";
+const secretKey = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY || "sehat_fallback_secret_key";
+console.log("Auth Lib using secret:", secretKey ? secretKey.substring(0, 5) + "..." : "MISSING", "Source:", process.env.JWT_SECRET ? "JWT_SECRET" : (process.env.JWT_SECRET_KEY ? "JWT_SECRET_KEY" : "FALLBACK"));
+
 const key = new TextEncoder().encode(secretKey);
 
 export async function getSession() {
@@ -31,7 +33,7 @@ export async function createSession(userId, role, isProfileComplete = false) {
 
     (await cookies()).set('session', token, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         expires,
         sameSite: 'lax',
         path: '/',

@@ -1,5 +1,6 @@
 import DoctorProfilePage from '@/components/pages/DoctorProfilePage';
 
-export default function DoctorProfile({ params }) {
-    return <DoctorProfilePage id={params.id} />;
+export default async function DoctorProfile({ params }) {
+    const { id } = await params;
+    return <DoctorProfilePage id={id} />;
 }

@@ -48,7 +48,8 @@ export default function OnboardingPage() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isEmailValid = emailRegex.test(formData.email);
 
-        setIsValid(isNameValid && isEmailValid);
+        const isMobileValid = formData.mobile.length === 10;
+        setIsValid(isNameValid && isEmailValid && isMobileValid);
     }, [formData]);
 
     const handleChange = (e) => {
@@ -103,6 +104,7 @@ export default function OnboardingPage() {
                             src="/Sehatnxtlogo.png"
                             alt="SehatNxt"
                             fill
+                            sizes="(max-width: 768px) 100vw, 300px"
                             className="object-contain"
                             priority
                         />
@@ -121,11 +123,20 @@ export default function OnboardingPage() {
                                 Mobile Number <ShieldCheck size={12} className="text-green-500" />
                             </label>
                             <input
-                                type="text"
+                                name="mobile"
+                                type="tel"
                                 value={formData.mobile}
-                                readOnly
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-500 font-semibold cursor-not-allowed text-sm"
+                                onChange={(e) => {
+                                    // Allow only numbers and max 10 digits
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    setFormData(prev => ({ ...prev, mobile: val }));
+                                }}
+                                placeholder="9876543210"
+                                className="w-full pl-12 bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:border-blue-500 focus:ring-blue-100 transition-all text-sm"
                             />
+                            <div className="absolute left-3 bottom-3 text-slate-400 font-bold text-sm pointer-events-none">
+                                +91
+                            </div>
                         </div>
 
                         {/* Full Name */}

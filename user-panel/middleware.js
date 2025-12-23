@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secretKey = "sehatsupersecretkey123";
+const secretKey = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY || "sehat_fallback_secret_key";
 const key = new TextEncoder().encode(secretKey);
 
 export async function middleware(request) {
@@ -17,9 +17,14 @@ export async function middleware(request) {
     // Onboarding path
     const isOnboardingPath = request.nextUrl.pathname.startsWith('/onboarding');
 
+    // Debug Middleware
+    console.log(`Middleware Checking: ${request.nextUrl.pathname}`);
+    request.cookies.getAll().forEach(c => console.log(`Cookie: ${c.name}=${c.value.substring(0, 10)}...`));
+
     if (!session) {
         // If no session and trying to access protected route -> Redirect to Login
         if (!isPublicPath && !isOnboardingPath) {
+            console.log("Redirecting to login (No Session)");
             return NextResponse.redirect(new URL('/login', request.url));
         }
         return NextResponse.next();
@@ -50,6 +55,7 @@ export async function middleware(request) {
         return NextResponse.next();
 
     } catch (error) {
+        console.error("Middleware Session Verification Failed:", error.message);
         // Invalid Token -> Redirect to Login & Clear Cookie
         if (!isPublicPath) {
             const response = NextResponse.redirect(new URL('/login', request.url));

@@ -70,7 +70,6 @@ const BookAppointmentPage = () => {
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api';
             const res = await axios.get(`${baseUrl}/doctor/list`, { withCredentials: true });
-            console.log("Doctors API Response:", res.data);
             if (res.data.success) {
                 setDoctors(res.data.doctors);
             }
@@ -298,7 +297,7 @@ const DoctorCard = ({ doctor, router }) => {
             {/* Image */}
             <div className="relative flex-shrink-0 w-20 h-20">
                 <Image
-                    src={doctor.image}
+                    src={doctor.image && doctor.image.startsWith('/') ? doctor.image : "https://randomuser.me/api/portraits/lego/1.jpg"}
                     alt={doctor.name}
                     fill
                     sizes="(max-width: 768px) 30vw, 15vw"

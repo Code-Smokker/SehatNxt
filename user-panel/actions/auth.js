@@ -13,7 +13,7 @@ export async function sendOtp(formData) {
 
     // Validate mobile
     if (!mobile || mobile.length !== 10) {
-        return { error: 'Invalid mobile number' };
+        return JSON.parse(JSON.stringify({ error: 'Invalid mobile number' }));
     }
 
     // DEMO MODE CHECK
@@ -32,7 +32,7 @@ export async function sendOtp(formData) {
         const { cookies } = await import('next/headers');
         (await cookies()).set('demo_otp', JSON.stringify({ mobile, otp: otpCode }), { maxAge: 600 }); // 10 mins
 
-        return { success: true, message: 'OTP sent successfully (DEMO)' };
+        return JSON.parse(JSON.stringify({ success: true, message: 'OTP sent successfully (DEMO)' }));
     }
 
     try {
@@ -56,10 +56,10 @@ export async function sendOtp(formData) {
         console.log(`[AUTH] CODE: ${otpCode}`);
         console.log(`================================\n`);
 
-        return { success: true, message: 'OTP sent successfully' };
+        return JSON.parse(JSON.stringify({ success: true, message: 'OTP sent successfully' }));
     } catch (error) {
         console.error("Send OTP Error:", error);
-        return { error: `Failed to send OTP: ${error.message}` };
+        return JSON.parse(JSON.stringify({ error: `Failed to send OTP: ${error.message}` }));
     }
 }
 
@@ -68,7 +68,7 @@ export async function verifyOtp(prevState, formData) {
     const otp = formData.get('otp');
 
     if (!mobile || !otp) {
-        return { error: 'Missing mobile or OTP' };
+        return JSON.parse(JSON.stringify({ error: 'Missing mobile or OTP' }));
     }
 
     try {
@@ -93,7 +93,7 @@ export async function verifyOtp(prevState, formData) {
                 // Allow magic OTP "123456" for convenience if desired, OR strict check?
                 // User asked: "Compare input OTP with generated OTP". 
                 // So strict check against what was logged.
-                return { error: 'Invalid or Expired OTP (Demo)' };
+                return JSON.parse(JSON.stringify({ error: 'Invalid or Expired OTP (Demo)' }));
             }
 
             // Clear cookie
@@ -103,7 +103,7 @@ export async function verifyOtp(prevState, formData) {
             const otpRecord = await Otp.findOne({ phone: mobile, otp });
 
             if (!otpRecord) {
-                return { error: 'Invalid or Expired OTP' };
+                return JSON.parse(JSON.stringify({ error: 'Invalid or Expired OTP' }));
             }
 
             // 2. Clear OTP after usage
@@ -134,24 +134,24 @@ export async function verifyOtp(prevState, formData) {
         await createSession(user._id.toString(), user.role, isProfileComplete);
 
         if (!isProfileComplete) {
-            return {
+            return JSON.parse(JSON.stringify({
                 success: true,
                 requiresOnboarding: true,
                 redirectUrl: '/onboarding/basic-details',
                 user: { name: user.name, phone: user.phone, role: user.role, email: user.email }
-            };
+            }));
         } else {
-            return {
+            return JSON.parse(JSON.stringify({
                 success: true,
                 requiresOnboarding: false,
                 redirectUrl: '/home',
                 user: { name: user.name, phone: user.phone, role: user.role, email: user.email }
-            };
+            }));
         }
 
     } catch (error) {
         console.error("Login verification error:", error);
-        return { error: 'Internal Server Error' };
+        return JSON.parse(JSON.stringify({ error: 'Internal Server Error' }));
     }
 }
 
@@ -160,23 +160,25 @@ export async function completeOnboarding(formData) {
     const name = formData.get('name');
     const email = formData.get('email');
 
-    if (!mobile || !name || !email) return { error: "Name and Email are required" };
+    if (!mobile || !name || !email) return JSON.parse(JSON.stringify({ error: "Name and Email are required" }));
 
     try {
         await dbConnect();
 
         // Basic validation
-        if (name.length < 2) return { error: "Name must be at least 2 characters" };
+        if (name.length < 2) return JSON.parse(JSON.stringify({ error: "Name must be at least 2 characters" }));
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) return { error: "Invalid email format" };
+        if (!emailRegex.test(email)) return JSON.parse(JSON.stringify({ error: "Invalid email format" }));
 
+        // For Google Auth users, we might be setting the phone for the first time.
+        // So we should find by EMAIL (which is constant), not phone.
         const user = await User.findOneAndUpdate(
-            { phone: mobile },
-            { name: name, email: email },
+            { email: email },
+            { name: name, phone: mobile, isProfileComplete: true },
             { new: true }
         );
 
-        if (!user) return { error: "User not found" };
+        if (!user) return JSON.parse(JSON.stringify({ error: "User not found" }));
 
         // Update Session to reflect completed profile
         await createSession(user._id.toString(), user.role, true);
@@ -186,11 +188,11 @@ export async function completeOnboarding(formData) {
         revalidatePath('/home');
         revalidatePath('/profile');
 
-        return { success: true, user: { name: user.name, phone: user.phone, role: user.role, email: user.email } };
+        return JSON.parse(JSON.stringify({ success: true, user: { name: user.name, phone: user.phone, role: user.role, email: user.email } }));
     } catch (error) {
         console.error("Onboarding error:", error);
-        if (error.code === 11000) return { error: "Email already in use" };
-        return { error: "Failed to save details" };
+        if (error.code === 11000) return JSON.parse(JSON.stringify({ error: "Email already in use" }));
+        return JSON.parse(JSON.stringify({ error: "Failed to save details" }));
     }
 }
 

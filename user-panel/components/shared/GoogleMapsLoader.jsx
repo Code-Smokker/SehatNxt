@@ -14,6 +14,12 @@ export default function GoogleMapsLoader() {
             }
 
             const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+            console.log("Debug Maps Key:", apiKey ? `Present (${apiKey.substring(0, 5)}...)` : "MISSING/UNDEFINED", "Env:", process.env.NODE_ENV);
+
+            if (!apiKey) {
+                console.warn("Google Maps API Key is missing. Maps will not be loaded.");
+                return;
+            }
 
             try {
                 // Use the new Loader class correctly or fallback to functional approach if needed.
