@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 // In Next.js, env vars prefixed with NEXT_PUBLIC_ are available on the client
-const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+// const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY; // REMOVED: Using Backend Proxy
 
 export const useUserLocation = () => {
     const [location, setLocation] = useState(null); // { lat, lng, address, label? }
@@ -26,27 +26,14 @@ export const useUserLocation = () => {
         }
     }, []);
 
-    // Helper: Reverse Geocode (Lat/Lng -> Address)
+    // Helper: Reverse Geocode (Lat/Lng -> Address) via Backend Proxy
     const getAddressFromCoords = async (lat, lng) => {
-        if (!window.google || !window.google.maps) {
-            console.error("Google Maps API not loaded");
-            return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-        }
-
-        const geocoder = new window.google.maps.Geocoder();
         try {
-            const response = await geocoder.geocode({ location: { lat, lng } });
-            if (response && response.results && response.results[0]) {
-                // Try to format: "Area, City" or fallback to formatted_address
-                // This logic can be refined to extract specifically locality or sublocality
-                const result = response.results[0];
+            const res = await fetch(`/api/maps/geocode?lat=${lat}&lng=${lng}`);
+            const data = await res.json();
 
-                // Simple parser for "Area, City"
-                // const locality = result.address_components.find(c => c.types.includes('locality'))?.long_name;
-                // const sublocality = result.address_components.find(c => c.types.includes('sublocality'))?.long_name;
-                // return sublocality && locality ? `${sublocality}, ${locality}` : result.formatted_address;
-
-                return result.formatted_address;
+            if (data.success && data.address) {
+                return data.address;
             }
         } catch (err) {
             console.error("Geocoding failed:", err);

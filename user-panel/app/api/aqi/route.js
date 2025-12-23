@@ -22,7 +22,7 @@ export async function POST(req) {
             // return NextResponse.json({ success: true, data: cached.data, source: 'cache' });
         }
 
-        const apiKey = process.env.GOOGLE_AQI_API_KEY || process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        const apiKey = process.env.GOOGLE_AQI_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 
         if (!apiKey) {
             return NextResponse.json({ success: false, error: 'API Key Missing' }, { status: 500 });

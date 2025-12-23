@@ -13,7 +13,7 @@ export async function GET(req) {
             return NextResponse.json({ error: 'Coordinates required' }, { status: 400 });
         }
 
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
 
         const response = await axios.get(url);

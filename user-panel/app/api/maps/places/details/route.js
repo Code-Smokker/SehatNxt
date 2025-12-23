@@ -12,7 +12,7 @@ export async function GET(req) {
             return NextResponse.json({ error: 'Place ID required' });
         }
 
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,formatted_address,name,address_components&key=${apiKey}`;
 
         const response = await axios.get(url);

@@ -24,7 +24,7 @@ export const metadata = {
 };
 
 import { LocationProvider } from '@/context/LocationContext';
-import GoogleMapsLoader from '@/components/shared/GoogleMapsLoader';
+// import GoogleMapsLoader from '@/components/shared/GoogleMapsLoader'; // REMOVED
 
 import BackgroundEffects from '@/components/shared/BackgroundEffects';
 
@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
         <html lang="en">
             <body className={inter.className}>
                 <BackgroundEffects />
-                <GoogleMapsLoader />
+                {/* <GoogleMapsLoader /> */}
                 <LocationProvider>
                     <main className="relative z-10 min-h-screen">
                         {children}
