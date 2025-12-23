@@ -31,6 +31,6 @@ const reviewSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Prevent duplicate reviews for the same appointment at database level
-reviewSchema.index({ appointmentId: 1 }, { unique: true });
+// reviewSchema.index({ appointmentId: 1 }, { unique: true }); // Removed as it's already defined in schema
 
 module.exports = mongoose.model('Review', reviewSchema);
