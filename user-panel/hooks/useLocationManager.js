@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from '@/context/LocationContext';
 import { reverseGeocode } from '@/utils/geocode';
 import { getAirQuality } from '@/utils/getAQI';
-import { getMapsImport } from '@/utils/googleMaps';
+// import { getMapsImport } from '@/utils/googleMaps'; // REMOVED
 
 export const useLocationManager = () => {
     const {
@@ -21,7 +21,7 @@ export const useLocationManager = () => {
     // Initial Load: Check if Maps API works, or use Mock
     useEffect(() => {
         // Optional: Preload libraries
-        getMapsImport("places").catch(err => console.error("Maps Load Error", err));
+        // getMapsImport("places").catch(err => console.error("Maps Load Error", err)); // REMOVED
     }, []);
 
     const getCurrentLocation = useCallback(async () => {
