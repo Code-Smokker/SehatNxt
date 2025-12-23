@@ -55,6 +55,19 @@ export async function POST(req) {
 
     } catch (error) {
         console.error("Send OTP API Error:", error);
+
+        if (error.response) {
+            // Fast2SMS API returned an error (e.g., 401 Unauthorized)
+            const status = error.response.status;
+            const data = error.response.data;
+            console.error("Fast2SMS Response Error:", status, data);
+
+            if (status === 401) {
+                return NextResponse.json({ message: "SMS Service Unauthorized (Check API Key)" }, { status: 500 });
+            }
+            return NextResponse.json({ message: `SMS Service Error: ${data.message || 'Unknown'}` }, { status: 500 });
+        }
+
         return NextResponse.json({ message: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }
