@@ -100,7 +100,7 @@ export default function OnboardingPage() {
                 <div className="bg-blue-50/50 p-8 text-center border-b border-slate-100">
                     <div className="relative w-24 h-12 mx-auto mb-4">
                         <Image
-                            src="/logo.png"
+                            src="/Sehatnxtlogo.png"
                             alt="SehatNxt"
                             fill
                             className="object-contain"

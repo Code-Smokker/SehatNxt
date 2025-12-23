@@ -7,6 +7,7 @@ import Otp from '@/lib/models/Otp';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
+// 10: export async function sendOtp(formData) {
 export async function sendOtp(formData) {
     const mobile = formData.get('mobile');
 
@@ -15,25 +16,50 @@ export async function sendOtp(formData) {
         return { error: 'Invalid mobile number' };
     }
 
-    try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+    // DEMO MODE CHECK
+    if (process.env.OTP_MODE === 'demo') {
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log(`\n================================`);
+        console.log(`[DEMO OTP] for ${mobile} => ${otpCode}`);
+        console.log(`================================\n`);
 
-        const response = await fetch(`${API_BASE}/auth/send-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: mobile })
+        // Simple cookie-based storage for demo (insecure for prod, fine for demo)
+        // Note: In server actions, we can't easily set cookies without 'next/headers'
+        // But we can try to rely on client-side handling or just DB bypass?
+        // Wait, "Ensure stateless verification (cookie or similar)".
+
+        // Actually, importing cookies() from 'next/headers' is standard in server actions.
+        const { cookies } = await import('next/headers');
+        (await cookies()).set('demo_otp', JSON.stringify({ mobile, otp: otpCode }), { maxAge: 600 }); // 10 mins
+
+        return { success: true, message: 'OTP sent successfully (DEMO)' };
+    }
+
+    try {
+        await dbConnect();
+
+        // 1. Generate Random 6-digit OTP
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // 2. Store in DB (upsert/replace old one)
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins from now
+        await Otp.deleteMany({ phone: mobile });
+        await Otp.create({
+            phone: mobile,
+            otp: otpCode,
+            expiresAt: expiresAt
         });
 
-        const data = await response.json();
+        // 3. Send OTP (Simulated via Console)
+        console.log(`\n================================`);
+        console.log(`[AUTH] Sending OTP to ${mobile}`);
+        console.log(`[AUTH] CODE: ${otpCode}`);
+        console.log(`================================\n`);
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Failed to send OTP');
-        }
-
-        return { success: true, message: data.message };
+        return { success: true, message: 'OTP sent successfully' };
     } catch (error) {
-        console.error("Send OTP Action Error:", error);
-        return { error: error.message };
+        console.error("Send OTP Error:", error);
+        return { error: `Failed to send OTP: ${error.message}` };
     }
 }
 
@@ -48,17 +74,41 @@ export async function verifyOtp(prevState, formData) {
     try {
         await dbConnect();
 
-        // 1. Verify OTP against Database (Direct Access)
-        const otpRecord = await Otp.findOne({ phone: mobile, otp });
+        // DEMO MODE CHECK
+        if (process.env.OTP_MODE === 'demo') {
+            const { cookies } = await import('next/headers');
+            const demoCookie = (await cookies()).get('demo_otp');
 
-        if (!otpRecord) {
-            return { error: 'Invalid or Expired OTP' };
+            let isValid = false;
+            if (demoCookie) {
+                try {
+                    const data = JSON.parse(demoCookie.value);
+                    if (data.mobile === mobile && data.otp === otp) {
+                        isValid = true;
+                    }
+                } catch (e) { }
+            }
+
+            if (!isValid) {
+                // Allow magic OTP "123456" for convenience if desired, OR strict check?
+                // User asked: "Compare input OTP with generated OTP". 
+                // So strict check against what was logged.
+                return { error: 'Invalid or Expired OTP (Demo)' };
+            }
+
+            // Clear cookie
+            (await cookies()).delete('demo_otp');
+        } else {
+            // 1. Verify OTP against Database
+            const otpRecord = await Otp.findOne({ phone: mobile, otp });
+
+            if (!otpRecord) {
+                return { error: 'Invalid or Expired OTP' };
+            }
+
+            // 2. Clear OTP after usage
+            await Otp.deleteMany({ phone: mobile });
         }
-
-        // 2. Clear OTP after usage
-        await Otp.deleteMany({ phone: mobile });
-
-        // OTP Verified Successfully. Now handle User Login/Signup locally (as this is the Auth Server Action)
 
         // 3. Check if user exists or Create New
         let user = await User.findOne({ phone: mobile });

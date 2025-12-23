@@ -62,10 +62,6 @@ app.use('/api/aqi', require('./routes/aqiRoutes')); // Google AQI API
 app.use('/api/my-doctors', require('./routes/savedDoctorRoutes')); // Saved/My Doctors API
 app.use('/api/reminders', require('./routes/reminderRoutes'));
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

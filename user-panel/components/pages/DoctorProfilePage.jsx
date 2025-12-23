@@ -205,6 +205,7 @@ const DoctorProfilePage = ({ id }) => {
                                 alt={doctor.name}
                                 fill
                                 sizes="(max-width: 768px) 30vw, 15vw"
+                                priority
                                 className="rounded-2xl object-cover shadow-sm bg-slate-50"
                             />
                         </div>

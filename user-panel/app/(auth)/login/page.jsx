@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Splash from "@/components/shared/Splash";
-import { verifyOtp } from "@/actions/auth";
+import { sendOtp, verifyOtp } from "@/actions/auth";
 
 export default function LoginPage() {
     const [showSplash, setShowSplash] = useState(true);
@@ -23,26 +23,13 @@ export default function LoginPage() {
         if (mobile.length !== 10) return setError("Enter valid mobile number");
 
         setLoading(true);
+        const fd = new FormData();
+        fd.append("mobile", mobile);
 
-        try {
-            const res = await fetch('/api/auth/send-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: mobile }),
-            });
+        const res = await sendOtp(fd);
+        setLoading(false);
 
-            const data = await res.json();
-            setLoading(false);
-
-            if (res.ok && data.success) {
-                setStep(2);
-            } else {
-                setError(data.message || "Failed to send OTP");
-            }
-        } catch (err) {
-            setLoading(false);
-            setError("Something went wrong. Please try again.");
-        }
+        res.success ? setStep(2) : setError(res.error);
     };
 
     const handleVerifyOtp = async (e) => {
@@ -100,7 +87,7 @@ export default function LoginPage() {
                             className="relative h-16 w-auto mx-auto mb-6"
                         >
                             <Image
-                                src="/logo.png"
+                                src="/Sehatnxtlogo.png"
                                 alt="SehatNxt healthcare platform logo"
                                 fill
                                 sizes="(max-width: 768px) 100vw, 33vw"

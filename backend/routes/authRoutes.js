@@ -17,8 +17,6 @@ const generateReferralCode = (role) => {
     return prefix + random;
 };
 const Referral = require('../models/Referral');
-const sendSms = require('../utils/fast2sms');
-
 
 // Register User
 router.post('/register', async (req, res) => {
@@ -235,75 +233,4 @@ router.post('/doctor/login', async (req, res) => {
     }
 });
 
-// --- GENERIC OTP ROUTES (FAST2SMS) ---
-
-// 1. Send OTP
-router.post('/send-otp', async (req, res) => {
-    try {
-        const { phone } = req.body;
-        if (!phone || phone.length !== 10) {
-            return res.status(400).json({ message: "Valid 10-digit phone number is required" });
-        }
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Save to DB (Upsert)
-        await Otp.deleteMany({ phone }); // Clear old
-        await Otp.create({
-            phone,
-            otp,
-            expiresAt: new Date(Date.now() + 5 * 60 * 1000) // 5 mins expiry
-        });
-
-        // Send via Fast2SMS
-        const smsResult = await sendSms(phone, otp);
-
-        if (smsResult.success) {
-            res.status(200).json({ success: true, message: "OTP sent successfully" });
-        } else {
-            console.error("Fast2SMS Error:", smsResult.error);
-            // Fallback for dev/testing if SMS fails (optional, but good for debugging)
-            if (process.env.NODE_ENV === 'development') {
-                return res.status(200).json({ success: true, message: "OTP Sent (Dev Mode)", devOtp: otp });
-            }
-            res.status(500).json({ message: "Failed to send OTP SMS" });
-        }
-
-    } catch (error) {
-        console.error("Send OTP Error:", error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// 2. Verify OTP
-router.post('/verify-otp', async (req, res) => {
-    try {
-        const { phone, otp } = req.body;
-        if (!phone || !otp) {
-            return res.status(400).json({ message: "Phone and OTP are required" });
-        }
-
-        const otpRecord = await Otp.findOne({ phone });
-
-        if (!otpRecord) {
-            return res.status(400).json({ message: "OTP not found or expired" });
-        }
-
-        if (String(otpRecord.otp) !== String(otp)) {
-            return res.status(400).json({ message: "Invalid OTP" });
-        }
-
-        // Clear OTP after success
-        await Otp.deleteMany({ phone });
-
-        res.status(200).json({ success: true, message: "OTP verified successfully" });
-
-    } catch (error) {
-        console.error("Verify OTP Error:", error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
 module.exports = router;
-

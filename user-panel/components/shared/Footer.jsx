@@ -16,9 +16,10 @@ const Footer = () => {
                     <div className="flex flex-col items-center gap-3">
                         <div className="relative w-28 h-14">
                             <Image
-                                src="/logo.png"
+                                src="/Sehatnxtlogo.png"
                                 alt="SehatNxt – Digital Healthcare Platform"
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 className="object-contain"
                             />
                         </div>

@@ -41,6 +41,7 @@ const Hero = () => {
                         alt="doctor"
                         fill
                         sizes="128px"
+                        priority
                         className="object-cover rounded-2xl shadow-sm transform rotate-3 hover:rotate-0 transition-transform duration-300"
                     />
                 </div>

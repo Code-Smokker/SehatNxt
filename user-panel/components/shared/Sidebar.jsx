@@ -91,7 +91,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <div className="flex items-center justify-between px-6 pt-6 pb-2">
                         <div className="relative w-28 h-8">
                             <Image
-                                src="/logo.png"
+                                src="/Sehatnxtlogo.png"
                                 alt="SehatNxt"
                                 fill
                                 sizes="112px"

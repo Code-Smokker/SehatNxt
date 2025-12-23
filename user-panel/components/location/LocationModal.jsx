@@ -6,7 +6,7 @@ import GooglePlaceSearch from "./GooglePlaceSearch";
 import AddAddressForm from "./AddAddressForm";
 import SavedAddressCard from "./SavedAddressCard";
 import { useLocation } from "@/context/LocationContext";
-// import { getGoogleLib } from "@/utils/googleMaps"; // REMOVED
+import { getGoogleLib } from "@/utils/googleMaps";
 
 // 🌍 Configuration
 const ENABLE_GOOGLE_PLACES = false; // Feature flag: Default to manual search

@@ -97,6 +97,7 @@ const PaymentSummaryContent = () => {
                                 src={doctorImage || "https://randomuser.me/api/portraits/lego/1.jpg"}
                                 alt={doctorName || 'Doctor'}
                                 fill
+                                sizes="(max-width: 768px) 20vw, 10vw"
                                 className="rounded-xl object-cover bg-slate-100 grayscale-[0.2]"
                             />
                         </div>

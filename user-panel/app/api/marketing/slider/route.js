@@ -2,9 +2,6 @@ import dbConnect from '@/lib/db';
 import Slider from '@/lib/models/Slider';
 import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
-
 export async function GET(req) {
     try {
         await dbConnect();

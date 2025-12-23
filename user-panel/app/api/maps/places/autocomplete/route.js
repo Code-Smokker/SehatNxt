@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
@@ -12,7 +10,7 @@ export async function GET(req) {
             return NextResponse.json({ predictions: [] });
         }
 
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         // Use 'place/autocomplete' for search
         const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}&types=(regions)`;
 

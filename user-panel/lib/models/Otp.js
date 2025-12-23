@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 const OtpSchema = new mongoose.Schema({
-    phone: String,
-    otp: String,
-    expiresAt: Date,
+    phone: { type: String, required: true },
+    otp: { type: String, required: true },
+    expiresAt: { type: Date, required: true, expires: 600 }, // Auto-delete after 10 mins (600s) from this time
 }, { timestamps: true });
 
-export default mongoose.models.Otp || mongoose.model('Otp', OtpSchema);
+const Otp = mongoose.models.Otp || mongoose.model('Otp', OtpSchema);
+export default Otp;

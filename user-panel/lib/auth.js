@@ -1,3 +1,5 @@
+"use server";
+
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -5,7 +7,7 @@ const secretKey = "sehatsupersecretkey123";
 const key = new TextEncoder().encode(secretKey);
 
 export async function getSession() {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const session = cookieStore.get('session');
     if (!session) return null;
     try {
@@ -27,7 +29,7 @@ export async function createSession(userId, role, isProfileComplete = false) {
         .setExpirationTime('7d')
         .sign(key);
 
-    cookies().set('session', token, {
+    (await cookies()).set('session', token, {
         httpOnly: true,
         secure: true,
         expires,
@@ -37,7 +39,7 @@ export async function createSession(userId, role, isProfileComplete = false) {
 }
 
 export async function deleteSession() {
-    cookies().delete('session');
+    (await cookies()).delete('session');
 }
 
 export async function updateSession(request) {
