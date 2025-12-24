@@ -1,40 +1,44 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Loader } from "@googlemaps/js-api-loader";
+import { importLibrary } from "@googlemaps/js-api-loader";
 
 export default function GoogleMapsLoader() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         const initMap = async () => {
-            if (window.google?.maps) {
-                setIsLoaded(true);
-                return;
-            }
-
-            const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-            console.log("Debug Maps Key:", apiKey ? `Present (${apiKey.substring(0, 5)}...)` : "MISSING/UNDEFINED", "Env:", process.env.NODE_ENV);
-
-            if (!apiKey) {
-                console.warn("Google Maps API Key is missing. Maps will not be loaded.");
-                return;
-            }
-
+            // Check if maps is already available
             try {
-                // Use standard Loader class which is reliable for v2+
-                const { Loader } = await import("@googlemaps/js-api-loader");
+                // If the google namespace exists and maps is loaded, we can skip
+                if (window.google?.maps) {
+                    setIsLoaded(true);
+                    return;
+                }
 
-                const loader = new Loader({
+                const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+                if (!apiKey) {
+                    console.warn("Google Maps API Key is missing");
+                    return;
+                }
+
+                // In v2+, we can use importLibrary directly without Loader class
+                // First, we can try to bootstrap it if needed, but importLibrary usually handles it.
+                // However, the error suggests using setOptions is the way if Loader is deprecated.
+                // We will dynamically import the entry point.
+
+                const { setOptions, importLibrary } = await import("@googlemaps/js-api-loader");
+
+                setOptions({
                     apiKey: apiKey,
                     version: "weekly",
                     libraries: ["places", "geometry", "maps", "marker"],
                 });
 
-                await loader.importLibrary("maps");
-                await loader.importLibrary("places");
-                await loader.importLibrary("marker");
-                await loader.importLibrary("geometry");
+                await importLibrary("maps");
+                await importLibrary("places");
+                await importLibrary("marker");
+                await importLibrary("geometry");
 
                 // Dynamically import the web components
                 await import("@googlemaps/extended-component-library/place_picker.js");
@@ -47,7 +51,6 @@ export default function GoogleMapsLoader() {
             }
         };
 
-        // Initialize immediately
         initMap();
     }, []);
 
