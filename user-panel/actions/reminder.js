@@ -2,16 +2,16 @@
 
 import dbConnect from '@/lib/db';
 import Reminder from '@/lib/models/Reminder';
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 
 export async function getReminders() {
-    const session = await getSession();
-    if (!session) return [];
+    const { userId } = await auth();
+    if (!userId) return [];
 
     try {
         await dbConnect();
-        const reminders = await Reminder.find({ userId: session.userId })
+        const reminders = await Reminder.find({ userId })
             .sort({ datetime: 1 })
             .lean();
         return JSON.parse(JSON.stringify(reminders));
@@ -22,13 +22,13 @@ export async function getReminders() {
 }
 
 export async function createReminder(data) {
-    const session = await getSession();
-    if (!session) return { error: 'Unauthorized' };
+    const { userId } = await auth();
+    if (!userId) return { error: 'Unauthorized' };
 
     try {
         await dbConnect();
         await Reminder.create({
-            userId: session.userId,
+            userId,
             ...data,
             isActive: true,
             createdAt: new Date()
@@ -42,8 +42,8 @@ export async function createReminder(data) {
 }
 
 export async function deleteReminder(id) {
-    const session = await getSession();
-    if (!session) return { error: 'Unauthorized' };
+    const { userId } = await auth();
+    if (!userId) return { error: 'Unauthorized' };
 
     try {
         await dbConnect();

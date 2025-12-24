@@ -1,13 +1,13 @@
 "use server";
 
 import axios from 'axios';
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
 
 export async function getMyPrescriptions() {
-    const session = await getSession();
-    if (!session) return [];
+    const { userId } = await auth();
+    if (!userId) return [];
 
     try {
         // Fetch from backend using patient ID from session

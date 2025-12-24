@@ -3,11 +3,11 @@
 import dbConnect from '@/lib/db';
 import Appointment from '@/lib/models/Appointment';
 import { mockDoctors } from '@/data/mockDoctors'; // Fallback / Source of Truth for details
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 
 export async function getMyDoctors() {
-    const session = await getSession();
-    if (!session) return [];
+    const { userId } = await auth();
+    if (!userId) return [];
 
     try {
         await dbConnect();

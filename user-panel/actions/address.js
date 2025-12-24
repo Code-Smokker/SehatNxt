@@ -2,7 +2,7 @@
 
 import dbConnect from '@/lib/db';
 import UserAddress from '@/lib/models/UserAddress';
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 
 // Mock function until actual geocoding is set up in a utility if needed server-side, 
@@ -11,8 +11,8 @@ import { revalidatePath } from 'next/cache';
 // 1. Add Address
 export async function addUserAddress(data) {
     try {
-        const session = await getSession();
-        if (!session) return { error: "Unauthorized" };
+        const { userId } = await auth();
+        if (!userId) return { error: "Unauthorized" };
 
         await dbConnect();
 
@@ -38,12 +38,12 @@ export async function addUserAddress(data) {
 // 2. Get All Addresses
 export async function getUserAddresses() {
     try {
-        const session = await getSession();
-        if (!session) return [];
+        const { userId } = await auth();
+        if (!userId) return [];
 
         await dbConnect();
 
-        const addresses = await UserAddress.find({ userId: session.userId }).sort({ createdAt: -1 });
+        const addresses = await UserAddress.find({ userId }).sort({ createdAt: -1 });
 
         return JSON.parse(JSON.stringify(addresses));
     } catch (error) {
@@ -55,8 +55,8 @@ export async function getUserAddresses() {
 // 3. Delete Address
 export async function deleteUserAddress(addressId) {
     try {
-        const session = await getSession();
-        if (!session) return { error: "Unauthorized" };
+        const { userId } = await auth();
+        if (!userId) return { error: "Unauthorized" };
 
         await dbConnect();
 

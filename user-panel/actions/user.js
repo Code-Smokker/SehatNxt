@@ -2,16 +2,16 @@
 
 import dbConnect from '@/lib/db';
 import User from '@/lib/models/User';
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 
 export async function getUserProfile() {
-    const session = await getSession();
-    if (!session) return null;
+    const { userId } = await auth();
+    if (!userId) return null;
 
     try {
         await dbConnect();
-        const user = await User.findById(session.userId).lean();
+        const user = await User.findById(userId).lean();
         if (!user) return null;
 
         // Return user data, flattened
@@ -23,8 +23,8 @@ export async function getUserProfile() {
 }
 
 export async function updateUserProfile(data) {
-    const session = await getSession();
-    if (!session) return { error: 'Unauthorized' };
+    const { userId } = await auth();
+    if (!userId) return { error: 'Unauthorized' };
 
     try {
         await dbConnect();
