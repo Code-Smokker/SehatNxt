@@ -23,21 +23,7 @@ export default function PhoneCollectionModal({ isOpen, onClose, onSuccess, token
         setError('');
 
         try {
-            // Call API to update profile with phone
-            // We reuse the update profile or create a specific endpoint.
-            // Assuming we have an update profile endpoint or can use the generic one.
-            // Let's create/use a dedicated route for this if possible, or user standard update.
             const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api';
-
-            // NOTE: We might not have a dedicated simple "update phone" route ready in the new auth system.
-            // But let's assume `POST /api/auth/update-phone` or similar, OR strict use of existing ID.
-            // For now, let's use the `completeOnboarding` action logic via API if available, 
-            // OR simpler: just assume standard backend user update.
-
-            // To be safe and since we are using Server Actions primarily for mutations in this app structure:
-            // let's actually use a Server Action if we can?
-            // But we are in a client modal. 
-            // Let's try to call the backend route directly for profile update.
 
             await axios.put(`${baseUrl}/user/profile`, { phone }, {
                 headers: { Authorization: `Bearer ${token}` } // Or cookie based
@@ -63,7 +49,7 @@ export default function PhoneCollectionModal({ isOpen, onClose, onSuccess, token
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={onClose} // Optional: block close if mandatory?
+                        onClick={onClose}
                         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
                     >
                         {/* Modal */}
