@@ -1,14 +1,15 @@
-import { getSession } from '@/lib/auth';
+// import { getSession } from '@/lib/auth'; 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
 
 const api = {
     // --- AUTH HEADERS ---
-    async getHeaders() {
-        const session = await getSession();
+    // UPDATED: Now requires token to be passed explicitly if needed, or handles via middleware? 
+    // Actually, effective Clerk integration usually means we use `useAuth` in components and pass token.
+    async getHeaders(token = null) {
         return {
             'Content-Type': 'application/json',
-            ...(session?.token ? { 'Authorization': `Bearer ${session.token}` } : {})
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         };
     },
 

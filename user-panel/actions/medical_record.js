@@ -2,7 +2,7 @@
 
 import dbConnect from '@/lib/db';
 import MedicalRecord from '@/lib/models/MedicalRecord';
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
@@ -10,8 +10,8 @@ import path from 'path';
 // ... (imports)
 
 export async function uploadMedicalRecord(formData) {
-    const session = await getSession();
-    if (!session) return { error: 'Unauthorized' };
+    const { userId } = await auth();
+    if (!userId) return { error: 'Unauthorized' };
 
     const file = formData.get('file');
     const title = formData.get('title') || file.name;
@@ -54,8 +54,8 @@ export async function uploadMedicalRecord(formData) {
 }
 
 export async function getMedicalRecords() {
-    const session = await getSession();
-    if (!session) return [];
+    const { userId } = await auth();
+    if (!userId) return [];
 
     try {
         await dbConnect();

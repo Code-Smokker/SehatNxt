@@ -1,15 +1,16 @@
 "use server";
 
 import axios from 'axios';
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api';
 
 const getAuthHeader = async () => {
-    const session = await getSession();
+    const { userId, getToken } = await auth();
+    const token = await getToken();
     return {
         headers: {
-            Authorization: `Bearer ${session?.token || ''}`
+            Authorization: `Bearer ${token}`
         }
     };
 };

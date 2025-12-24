@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth'; // Ensure this exists or use standard headers
+// import { getSession } from '@/lib/auth'; // Legacy removed
 import dbConnect from '@/lib/db';
 import Address from '@/lib/models/UserAddress'; // Corrected import
 
