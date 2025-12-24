@@ -6,7 +6,7 @@ dotenv.config();
 
 const checkDoctors = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect(process.env.MONGODB_URL);
         console.log("Connected to DB");
 
         const count = await Doctor.countDocuments();

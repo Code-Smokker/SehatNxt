@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGO_URI || "mongodb+srv://omkarshewale22052007_db_user:IFnYfIzmqSRfkCHe@cluster0.85oylnt.mongodb.net/sehatnxt?appName=Cluster0";
+const MONGODB_URL = process.env.MONGODB_URL || "mongodb+srv://omkarshewale22052007_db_user:IFnYfIzmqSRfkCHe@cluster0.85oylnt.mongodb.net/sehatnxt?appName=Cluster0";
 
-if (!MONGODB_URI) {
-    throw new Error('Please define the MONGO_URI environment variable inside .env');
+if (!MONGODB_URL) {
+    throw new Error('Please define the MONGODB_URL environment variable inside .env');
 }
 
 let cached = global.mongoose;

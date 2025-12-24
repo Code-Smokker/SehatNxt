@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URL = process.env.MONGODB_URL;
 
-if (!MONGODB_URI) {
+if (!MONGODB_URL) {
     // throw new Error(
-    //   'Please define the MONGODB_URI environment variable inside .env.local'
+    //   'Please define the MONGODB_URL environment variable inside .env.local'
     // );
     // Suppress error for now to allow build if env is missing, but log warning
-    console.warn('MONGODB_URI is not defined in environment variables.');
+    console.warn('MONGODB_URL is not defined in environment variables.');
 }
 
 let cached = global.mongoose;

@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 // URI from your .env
-const MONGODB_URI = "mongodb+srv://omkarshewale22052007_db_user:IFnYfIzmqSRfkCHe@cluster0.85oylnt.mongodb.net/sehatnxt?appName=Cluster0";
+const MONGODB_URL = "mongodb+srv://omkarshewale22052007_db_user:IFnYfIzmqSRfkCHe@cluster0.85oylnt.mongodb.net/sehatnxt?appName=Cluster0";
 
 async function fixIndexes() {
     console.log("Connecting to MongoDB...");
     try {
-        await mongoose.connect(MONGODB_URI);
+        await mongoose.connect(MONGODB_URL);
         console.log("Connected.");
 
         const collection = mongoose.connection.collection('users');

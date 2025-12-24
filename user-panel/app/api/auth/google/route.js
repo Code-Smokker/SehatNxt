@@ -86,7 +86,7 @@ export async function POST(req) {
         console.error("Google Auth Error Details:", error);
 
         // Detailed Debug Logging
-        if (!process.env.MONGODB_URI) console.error("CRITICAL: MONGODB_URI is undefined!");
+        if (!process.env.MONGODB_URL) console.error("CRITICAL: MONGODB_URL is undefined!");
         if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) console.error("CRITICAL: NEXT_PUBLIC_GOOGLE_CLIENT_ID is undefined!");
 
         return NextResponse.json({
