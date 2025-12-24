@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, Search, User, ChevronLeft, Shield } from "lucide-react";
+import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
 import Sidebar from "./Sidebar";
 import LocationModal from "../location/LocationModal";
 import GlobalSearch from "./GlobalSearch";
@@ -231,12 +232,20 @@ const Navbar = ({ tokenData }) => {
             <div className="sticky top-0 w-full bg-gradient-to-b from-blue-700 via-blue-500 to-blue-400 text-white rounded-b-3xl pb-6 pt-5 px-5 shadow-xl shadow-blue-800/20 relative z-50">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/30 transition-all duration-300 flex items-center justify-center border border-white/20"
-                        >
-                            <User size={22} className="text-white drop-shadow-md" strokeWidth={2.5} />
-                        </button>
+                        <SignedIn>
+                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.3)] border border-white/20">
+                                <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
+                            </div>
+                        </SignedIn>
+                        <SignedOut>
+                            <SignInButton mode="modal">
+                                <button
+                                    className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:bg-white/30 transition-all duration-300 flex items-center justify-center border border-white/20"
+                                >
+                                    <User size={22} className="text-white drop-shadow-md" strokeWidth={2.5} />
+                                </button>
+                            </SignInButton>
+                        </SignedOut>
 
                         <div
                             onClick={openLocationModal}

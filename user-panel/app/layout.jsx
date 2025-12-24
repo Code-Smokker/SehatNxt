@@ -29,22 +29,22 @@ import GoogleMapsLoader from '@/components/shared/GoogleMapsLoader';
 
 import BackgroundEffects from '@/components/shared/BackgroundEffects';
 
-import GoogleWrapper from '@/components/auth/GoogleWrapper';
+import { ClerkProvider } from '@clerk/nextjs'
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="en">
-            <body className={inter.className}>
-                <BackgroundEffects />
-                <GoogleMapsLoader />
-                <GoogleWrapper>
+        <ClerkProvider>
+            <html lang="en">
+                <body className={inter.className}>
+                    <BackgroundEffects />
+                    <GoogleMapsLoader />
                     <LocationProvider>
                         <main className="relative z-10 min-h-screen">
                             {children}
                         </main>
                     </LocationProvider>
-                </GoogleWrapper>
-            </body>
-        </html>
+                </body>
+            </html>
+        </ClerkProvider>
     );
 }

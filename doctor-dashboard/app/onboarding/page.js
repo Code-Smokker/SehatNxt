@@ -4,55 +4,36 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Loader2, User, Stethoscope, GraduationCap, Clock, Info, MapPin, IndianRupee, Phone, Upload } from 'lucide-react';
 import axios from 'axios';
-import { getToken } from '@/lib/utils'; // Make sure this exists or use localStorage
+import { useAuth } from "@clerk/nextjs";
 
 export default function OnboardingPage() {
+    const { getToken, userId } = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        name: '',
-        phone: '', // Can be pre-filled
-        speciality: '',
-        degree: '',
-        experience: '',
-        about: '',
-        fees: '',
-        addressLine1: '',
-        addressLine2: '',
-        image: '/assets_frontend/profile_pic.png' // Default or upload logic
-    });
-
-    useEffect(() => {
-        // Optional: Fetch user details to pre-fill name/phone if available
-        // For now, let them enter it or trust the backend to link via token
-    }, []);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    // ... formData state ...
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const token = getToken();
+            const token = await getToken();
             if (!token) throw new Error("No session found. Please login again.");
 
             const payload = {
                 ...formData,
+                clerkId: userId, // Pass Clerk ID for backend linking
                 address: {
                     line1: formData.addressLine1,
                     line2: formData.addressLine2
                 }
             };
 
-            const res = await axios.post('http://localhost:5000/api/doctor/update-profile', payload, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/auth/doctor'}/update-profile`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             if (res.data.success) {
-                // Save doctor_id
-                localStorage.setItem('doctor_id', res.data.doctor._id);
+                // No need to save doctor_id manually if backend handles mapping
                 router.push('/dashboard');
             }
         } catch (error) {

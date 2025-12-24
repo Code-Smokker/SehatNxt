@@ -33,17 +33,17 @@ const IconMap = {
     Download // Added Download
 };
 
+import { useClerk } from '@clerk/nextjs';
+
 export default function Sidebar({ className, onLinkClick }) {
     const pathname = usePathname();
+    const { signOut } = useClerk();
 
     // Use MENU_ITEMS directly to show Appointments
     const filteredMenuItems = MENU_ITEMS;
 
-    const handleLogout = () => {
-        if (typeof window !== 'undefined') {
-            removeToken();
-            window.location.href = '/login';
-        }
+    const handleLogout = async () => {
+        await signOut({ redirectUrl: '/sign-in' });
     };
 
     return (

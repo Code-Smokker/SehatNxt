@@ -8,10 +8,14 @@ export const metadata = {
   description: "Manage your practice efficiently with SehatNxt",
 };
 
+import { ClerkProvider } from '@clerk/nextjs'
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

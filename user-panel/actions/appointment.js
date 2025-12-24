@@ -1,35 +1,37 @@
 "use server";
 
-import { getSession } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 
 const API_Base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
 export async function bookAppointment(appointmentData) {
-    const session = await getSession();
-    if (!session) {
-        return { error: 'Unauthorized' };
+    const { userId, getToken } = await auth();
+    const token = await getToken();
+
+    if (!userId || !token) {
+        return { error: 'Unauthorized: No active session' };
     }
 
     try {
         console.log(`[BookAppointment] URL: ${API_Base}/appointments/create`);
-        console.log(`[BookAppointment] Token: ${session.token ? session.token.substring(0, 10) + '...' : 'MISSING'}`);
+        console.log(`[BookAppointment] User: ${userId}`);
 
         const response = await fetch(`${API_Base}/appointments/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.token || ''}` // Assuming session might have a token later
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                userId: session.userId,
+                userId: userId, // Pass Clerk User ID
                 ...appointmentData
             })
         });
 
         console.log("Booking Response Status:", response.status);
         const text = await response.text();
-        console.log("Booking Response Text:", text);
+        // console.log("Booking Response Text:", text); // Verbose
 
         let data;
         try {
@@ -51,21 +53,23 @@ export async function bookAppointment(appointmentData) {
 }
 
 export async function getMyAppointments() {
-    const session = await getSession();
-    if (!session) {
+    const { userId, getToken } = await auth();
+    const token = await getToken();
+
+    if (!userId || !token) {
         return [];
     }
 
     try {
-        const response = await fetch(`${API_Base}/appointments/user/${session.userId}`, {
+        // Backend expects Clerk User ID to fetch appointments
+        const response = await fetch(`${API_Base}/appointments/user/${userId}`, {
             headers: {
-                'Authorization': `Bearer ${session.token || ''}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
         if (!response.ok) {
-            // Fallback for now if API fails or backend not running, to prevent crash
-            console.warn("API Fetch Failed", response.statusText);
+            console.warn("API Fetch Failed", response.status, response.statusText);
             return [];
         }
 

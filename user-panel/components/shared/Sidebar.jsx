@@ -6,71 +6,35 @@ import Image from "next/image";
 import { X, ChevronRight, User, LogOut, Calendar, FileText, Pill, Coins, Shield } from "lucide-react";
 import { logout } from "@/actions/auth";
 
+import { useUser, useClerk } from "@clerk/nextjs";
+
 const Sidebar = ({ isOpen, onClose }) => {
     const router = useRouter();
-    const [user, setUser] = useState({ name: 'Guest', phone: '', isGuest: true, completion: 0 });
+    const { user, isSignedIn } = useUser();
+    const { signOut } = useClerk();
 
-    useEffect(() => {
-        const loadUser = () => {
-            const userData = localStorage.getItem('sehat_user');
-            if (userData) {
-                try {
-                    const parsed = JSON.parse(userData);
-                    setUser({
-                        name: parsed.name || 'Sehat User',
-                        phone: parsed.phone || '',
-                        isGuest: false,
-                        completion: parsed.completion || 15 // Default 15% for basic details
-                    });
-                } catch (e) {
-                    console.error("Error parsing user data", e);
-                    setUser({ name: 'Guest', phone: '', isGuest: true, completion: 0 });
-                }
-            } else {
-                setUser({ name: 'Guest', phone: '', isGuest: true, completion: 0 });
-            }
-        };
-
-        // Initial Load
-        loadUser();
-
-        // Listen for updates (from Profile Save)
-        window.addEventListener('storage', loadUser);
-        return () => window.removeEventListener('storage', loadUser);
-    }, []);
+    // Mapping Clerk user to component state structure for compatibility if needed, 
+    // or direct usage. Let's use direct usage for simplicity.
+    const userName = user?.fullName || user?.firstName || 'Guest';
+    // Completion logic is proprietary, defaulting to 15% for now or handling properly via metadata later.
+    const completion = 15;
 
     const menuItems = [
-        { icon: Calendar, label: "Appointments", href: "/appointments" },
-        { icon: FileText, label: "Medical Records", href: "/medical-records" },
-        { icon: "/labtestside.png", label: "Test Bookings", href: "/test-bookings" },
-        { icon: "/Medicine copy.png", label: "Orders", href: "/orders" },
-        { icon: "/MY Doc.png", label: "My Doctors", href: "/doctors" },
-        { icon: "/REminder.png", label: "Reminders", href: "/reminders" },
-        { icon: "/Payments.png", label: "Payments & Health cash", href: "/payments" },
-        { icon: "/Support.png", label: "Help Center", href: "/help-center" },
+        { label: "My Appointments", href: "/appointments", icon: Calendar },
+        { label: "Medical Records", href: "/medical-records", icon: FileText },
+        { label: "Reminders", href: "/reminders", icon: Pill },
+        { label: "Payments", href: "/payments", icon: Coins },
+        { label: "Insurance", href: "/insurance", icon: Shield },
     ];
 
     const handleNavigation = (label, href) => {
         onClose();
-        if (href) {
-            router.push(href);
-            return;
-        }
-        // Fallback for items without explicit href in old logic
-        switch (label) {
-            case "Appointments": router.push('/appointments'); break;
-            case "My Doctors": router.push('/doctors'); break;
-            case "Medical records": router.push('/medical-records'); break;
-            case "Reminders": router.push('/reminders'); break;
-            case "Read Health Articles": router.push('/articles'); break;
-            case "Settings": router.push('/settings'); break;
-            default: break;
-        }
+        router.push(href);
     };
 
     const handleLogout = async () => {
         onClose();
-        await logout();
+        await signOut(() => router.push('/'));
     };
 
     return (
@@ -114,9 +78,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
                             <div className="flex-1 mt-0.5 min-w-0">
                                 <h3 className="text-lg font-bold text-slate-900 leading-tight truncate">
-                                    {user.name}
+                                    {userName}
                                 </h3>
-                                {user.isGuest ? (
+                                {!isSignedIn ? (
                                     <p className="text-blue-600 text-xs font-semibold mt-0.5">
                                         Login / Signup
                                     </p>
@@ -129,15 +93,15 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             <div className="h-1 flex-1 bg-slate-100 rounded-full overflow-hidden max-w-[80px]">
                                                 <div
                                                     className="h-full bg-green-500 rounded-full transition-all duration-500"
-                                                    style={{ width: `${user.completion}%` }}
+                                                    style={{ width: `${completion}%` }}
                                                 ></div>
                                             </div>
-                                            <span className="text-[9px] font-bold text-green-600">{user.completion}%</span>
+                                            <span className="text-[9px] font-bold text-green-600">{completion}%</span>
                                         </div>
                                     </>
                                 )}
                             </div>
-                            {!user.isGuest && <ChevronRight size={16} className="text-slate-300 mt-2 group-hover:text-blue-500 transition-colors" />}
+                            {isSignedIn && <ChevronRight size={16} className="text-slate-300 mt-2 group-hover:text-blue-500 transition-colors" />}
                         </div>
                     </div>
 
@@ -176,7 +140,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* --- Logout (Bottom) --- */}
-                    {!user.isGuest && (
+                    {isSignedIn && (
                         <div className="px-6 pb-8 pt-4 border-t border-slate-50">
                             <button
                                 onClick={handleLogout}

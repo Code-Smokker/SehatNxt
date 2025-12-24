@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const { clerkClient } = require('@clerk/clerk-sdk-node');
 const User = require('../models/User');
 const Doctor = require('../models/Doctor');
 
@@ -8,33 +8,33 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            // console.log("Middleware received token:", token.substring(0, 10) + "..."); 
-            console.log("Backend Verifying using Secret:", process.env.JWT_SECRET ? process.env.JWT_SECRET.substring(0, 5) + "..." : "MISSING");
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log("Token Decoded ID:", decoded.id);
+
+            // Verify Token using Clerk (Expects CLERK_SECRET_KEY in .env)
+            const decoded = await clerkClient.verifyToken(token);
+
+            // Sync Strategy: Fetch email from Clerk to map to MongoDB User/Doctor
+            const clerkUser = await clerkClient.users.getUser(decoded.sub);
+            const email = clerkUser.emailAddresses[0].emailAddress;
 
             // Try to find user first, then doctor
-            req.user = await User.findById(decoded.id).select('-password');
-            if (req.user) console.log("User Found:", req.user._id);
+            req.user = await User.findOne({ email }).select('-password');
 
             if (!req.user) {
-                req.doctor = await Doctor.findById(decoded.id).select('-password');
-                if (req.doctor) console.log("Doctor Found:", req.doctor._id);
+                req.doctor = await Doctor.findOne({ email }).select('-password');
             }
 
             if (!req.user && !req.doctor) {
-                console.log("No User or Doctor found for ID:", decoded.id);
-                throw new Error('Not authorized - User/Doctor not found');
+                // Future: Auto-create logic could go here
+                console.log("Clerk User validated but not found in MongoDB:", email);
+                throw new Error('User/Doctor not linked in database');
             }
 
             next();
         } catch (error) {
             console.error("Auth Middleware Error:", error.message);
-            res.status(401).json({ message: 'Not authorized, token failed' });
+            res.status(401).json({ message: 'Not authorized, token failed', error: error.message });
         }
-    }
-
-    if (!token) {
+    } else {
         res.status(401).json({ message: 'Not authorized, no token' });
     }
 };

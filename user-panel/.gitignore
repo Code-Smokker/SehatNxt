@@ -6,3 +6,6 @@ dist
 build
 coverage
 .vscode
+
+# clerk configuration (can include secrets)
+/.clerk/
