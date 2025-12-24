@@ -83,7 +83,16 @@ export async function POST(req) {
         });
 
     } catch (error) {
-        console.error("Google Auth Error:", error);
-        return NextResponse.json({ success: false, error: "Authentication failed" }, { status: 401 });
+        console.error("Google Auth Error Details:", error);
+
+        // Detailed Debug Logging
+        if (!process.env.MONGODB_URI) console.error("CRITICAL: MONGODB_URI is undefined!");
+        if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) console.error("CRITICAL: NEXT_PUBLIC_GOOGLE_CLIENT_ID is undefined!");
+
+        return NextResponse.json({
+            success: false,
+            error: "Authentication failed",
+            debug: error.message
+        }, { status: 401 });
     }
 }
