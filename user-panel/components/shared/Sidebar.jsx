@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { X, ChevronRight, User, LogOut, Calendar, FileText, Pill, Coins, Shield } from "lucide-react";
 // import { logout } from "@/actions/auth";
