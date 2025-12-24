@@ -4,14 +4,14 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { X, ChevronRight, User, LogOut, Calendar, FileText, Pill, Coins, Shield } from "lucide-react";
-import { logout } from "@/actions/auth";
-
+// import { logout } from "@/actions/auth";
 import { useUser, useClerk } from "@clerk/nextjs";
 
 const Sidebar = ({ isOpen, onClose }) => {
+    const pathname = usePathname();
     const router = useRouter();
-    const { user, isSignedIn } = useUser();
     const { signOut } = useClerk();
+    const { user, isSignedIn } = useUser();
 
     // Mapping Clerk user to component state structure for compatibility if needed, 
     // or direct usage. Let's use direct usage for simplicity.
@@ -34,7 +34,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
     const handleLogout = async () => {
         onClose();
-        await signOut(() => router.push('/'));
+        await signOut({ redirectUrl: '/' });
     };
 
     return (

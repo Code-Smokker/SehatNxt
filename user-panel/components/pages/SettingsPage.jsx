@@ -3,15 +3,15 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, User, Bell, Shield, MessageCircle, LogOut, ChevronRight, HelpCircle } from 'lucide-react';
-import { logout } from '@/actions/auth';
+// import { logout } from '@/actions/auth';
+import { useClerk } from '@clerk/nextjs';
 
 const SettingsPage = () => {
     const router = useRouter();
+    const { signOut } = useClerk();
 
     const handleLogout = async () => {
-        if (confirm("Are you sure you want to logout?")) {
-            await logout(); // Server action redirects
-        }
+        await signOut({ redirectUrl: '/' });
     };
 
     const SettingItem = ({ icon: Icon, label, onClick, color = "text-slate-600", bg = "bg-slate-100" }) => (

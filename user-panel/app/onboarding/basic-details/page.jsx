@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Loader2, CheckCircle, ShieldCheck } from "lucide-react";
-import { completeOnboarding } from "@/actions/auth";
+import { completeOnboarding } from "@/actions/onboarding";
 
 export default function OnboardingPage() {
     const router = useRouter();

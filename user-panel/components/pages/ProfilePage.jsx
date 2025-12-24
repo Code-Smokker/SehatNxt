@@ -14,7 +14,8 @@ import {
     MapPin
 } from "lucide-react";
 import { getUserProfile, updateUserProfile } from "@/actions/user";
-import { logout } from "@/actions/auth";
+// import { logout } from "@/actions/auth"; // Removed legacy
+import { useClerk } from "@clerk/nextjs";
 
 const ProfilePage = () => {
     const router = useRouter();
@@ -78,6 +79,11 @@ const ProfilePage = () => {
         return Math.round((filledFields / totalFields) * 100);
     };
 
+    const { signOut } = useClerk();
+
+    const handleLogout = async () => {
+        await signOut({ redirectUrl: '/' });
+    };
     const handleSave = async () => {
         setSaving(true);
         try {
