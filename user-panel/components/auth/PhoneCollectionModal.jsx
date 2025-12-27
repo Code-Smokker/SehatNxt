@@ -68,6 +68,7 @@ export default function PhoneCollectionModal({ isOpen, onClose, onSuccess, token
                                 <h2 className="text-xl font-bold">Add Phone Number</h2>
                                 <p className="text-blue-100 text-xs mt-1">So the doctor can contact you</p>
                             </div>
+
                             {/* Close Button (Optional - if mandatory, remove) */}
                             <button
                                 onClick={onClose}
